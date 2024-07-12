@@ -5,7 +5,7 @@ let project = Project(
     targets: [
         .target(
             name: "HostApp",
-            destinations: .iOS,
+            destinations: .macOS,
             product: .app,
             bundleId: "io.tuist.HostApp",
             infoPlist: .default,
@@ -20,7 +20,7 @@ let project = Project(
         ),
         .target(
             name: "HostAppTests",
-            destinations: .iOS,
+            destinations: .macOS,
             product: .unitTests,
             bundleId: "io.tuist.HostAppTests",
             infoPlist: .default,
