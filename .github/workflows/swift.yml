@@ -22,4 +22,4 @@ jobs:
       run: swift test -v
     - uses: jdx/mise-action@v2
     - name: Run iOS hosting app tests
-      run: sh runtests.sh
+      run: sh HostApp/runtests.sh
