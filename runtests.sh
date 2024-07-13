@@ -18,6 +18,7 @@ function prepareTestProject() {
 
 cd HostApp
 prepareTestProject
+test 'platform=visionOS Simulator,name=Any visionOS Simulator Device'
 test 'platform=iOS Simulator,name=Any iOS Simulator Device'
 test 'platform=watchOS Simulator,name=Any watchOS Simulator Device'
 test 'platform=tvOS Simulator,name=Any tvOS Simulator Device'
