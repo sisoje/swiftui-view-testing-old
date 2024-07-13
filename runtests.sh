@@ -16,6 +16,7 @@ function prepareTestProject() {
   tuist generate --no-open
 }
 
+cd HostApp
 prepareTestProject
 test 'platform=iOS Simulator,name=Any iOS Simulator Device'
 test 'platform=watchOS Simulator,name=Any watchOS Simulator Device'
