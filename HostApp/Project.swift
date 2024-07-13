@@ -1,11 +1,13 @@
 import ProjectDescription
 
+let dest: Set<Destination> = [.iPhone, .mac, .macCatalyst, .appleWatch, .appleTv, .appleVision]
+
 let project = Project(
     name: "HostApp",
     targets: [
         .target(
             name: "HostApp",
-            destinations: .macOS,
+            destinations: dest,
             product: .app,
             bundleId: "io.tuist.HostApp",
             infoPlist: .default,
@@ -20,7 +22,7 @@ let project = Project(
         ),
         .target(
             name: "HostAppTests",
-            destinations: .macOS,
+            destinations: dest,
             product: .unitTests,
             bundleId: "io.tuist.HostAppTests",
             infoPlist: .default,

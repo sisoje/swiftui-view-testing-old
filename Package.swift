@@ -5,7 +5,7 @@ import PackageDescription
 
 let package = Package(
     name: "ViewTesting",
-    platforms: [.iOS(.v15), .macOS(.v12)],
+    platforms:  [.iOS(.v15), .macOS(.v12), .tvOS(.v15), .watchOS(.v8)] + [.visionOS(.v1)],
     products: [
         .library(
             name: "ViewTestingProd",
