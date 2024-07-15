@@ -8,10 +8,15 @@
 import SwiftUI
 
 struct ViewSnapshot<T: View> {
-    let view: ValueNodeWrapper<T>
+    let viewReflection: ValueNodeWrapper<T>
     let body: ReflectionNodeWrapper
-    
-    @MainActor var viewSnapshot: ViewSnapshot {
-        view.value.viewSnapshot
+}
+
+@MainActor extension View {    
+    var viewSnapshot: ViewSnapshot<Self> {
+        ViewSnapshot(
+            viewReflection: ValueNodeWrapper(node: ReflectionNode(object: self)),
+            body: ReflectionNode(object: body)
+        )
     }
 }

@@ -31,8 +31,6 @@ final class ReflectionNode {
     let typeInfo: TypeInfo
 }
 
-// MARK: - Predicates
-
 // MARK: - Filtering
 
 extension ReflectionNode {

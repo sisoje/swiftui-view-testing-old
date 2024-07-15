@@ -11,15 +11,15 @@ class StatelessViewTests: XCTestCase {}
                 Toggle("Test", isOn: $isOn)
             }
         }
-        
-        let viewSnapshot = DummyView(isOn: .variable(false)).viewSnapshot
-        let toggle = viewSnapshot.body.toggles[0]
+
+        let view = DummyView(isOn: .variable(false))
+        let toggle = view.viewSnapshot.body.toggles[0]
         XCTAssertEqual(toggle.texts.map(\.string), ["Test"])
-        XCTAssertEqual(viewSnapshot.view.value.isOn, false)
+        XCTAssertEqual(view.isOn, false)
         toggle.toggle()
-        XCTAssertEqual(viewSnapshot.view.value.isOn, true)
+        XCTAssertEqual(view.isOn, true)
     }
-    
+
     func testButton() {
         struct DummyView: View {
             @Binding var counter: Int
@@ -27,12 +27,12 @@ class StatelessViewTests: XCTestCase {}
                 Button("Add") { counter += 1 }
             }
         }
-        
-        let viewSnapshot = DummyView(counter: .variable(0)).viewSnapshot
-        let button = viewSnapshot.body.buttons[0]
+
+        let view = DummyView(counter: .variable(0))
+        let button = view.viewSnapshot.body.buttons[0]
         XCTAssertEqual(button.texts.map(\.string), ["Add"])
-        XCTAssertEqual(viewSnapshot.view.value.counter, 0)
+        XCTAssertEqual(view.counter, 0)
         button.tap()
-        XCTAssertEqual(viewSnapshot.view.value.counter, 1)
+        XCTAssertEqual(view.counter, 1)
     }
 }

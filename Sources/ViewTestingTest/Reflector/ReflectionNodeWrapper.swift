@@ -8,21 +8,8 @@
 import Foundation
 import SwiftUI
 
-struct BodyNode: ReflectionNodeWrapper {
-    let node: ReflectionNode
-}
-
-struct RootNode: ReflectionNodeWrapper {
-    let node: ReflectionNode
-}
-
-@MainActor extension View {
-    var viewSnapshot: ViewSnapshot<Self> {
-        ViewSnapshot(
-            view: ValueNodeWrapper(node: ReflectionNode(object: self)),
-            body: RootNode(node: ReflectionNode(object: body))
-        )
-    }
+extension ReflectionNode: ReflectionNodeWrapper {
+    var node: ReflectionNode { self }
 }
 
 extension ReflectionNodeWrapper {

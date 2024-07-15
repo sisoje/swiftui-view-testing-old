@@ -13,9 +13,9 @@ extension Notification: @unchecked Sendable {
 }
 
 extension NotificationCenter {
-    @MainActor func getTestView<T>(_ timeout: TimeInterval) async throws -> T {
+    @MainActor func getBodyEvaluationObject<T>(timeout: TimeInterval) async throws -> T {
         let timeoutTask = Task {
-            try await Task.sleep(nanoseconds: UInt64(timeout*1_000_000_000))
+            try await Task.sleep(nanoseconds: UInt64(timeout * 1_000_000_000))
             // if timeout happens we post nil to unblock the await
             post(name: .bodyEvaluationNotification, object: nil)
         }
@@ -34,8 +34,8 @@ extension NotificationCenter {
 }
 
 extension View {
-    @MainActor static func getTestView(timeout: TimeInterval = 3) async throws -> Self {
+    @MainActor static func getTestView(timeout: TimeInterval = 1) async throws -> Self {
         // normally we get notification immediately but if there is any problem we dont want to wait forever
-        try await NotificationCenter.default.getTestView(timeout)
+        try await NotificationCenter.default.getBodyEvaluationObject(timeout: timeout)
     }
 }
