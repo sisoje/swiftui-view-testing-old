@@ -8,22 +8,24 @@
 import Foundation
 import SwiftUI
 
+struct BodyNode: ReflectionNodeWrapper {
+    let node: ReflectionNode
+}
+
 struct RootNode: ReflectionNodeWrapper {
     let node: ReflectionNode
 }
 
 @MainActor extension View {
-    var bodyReflection: ReflectionNodeWrapper {
-        RootNode(node: ReflectionNode(object: body))
+    var viewSnapshot: ViewSnapshot<Self> {
+        ViewSnapshot(
+            view: ValueNodeWrapper(node: ReflectionNode(object: self)),
+            body: RootNode(node: ReflectionNode(object: body))
+        )
     }
 }
 
 extension ReflectionNodeWrapper {
-    func genericNodes(_ t: any Any.Type) -> [ReflectionNode] {
-        let basename = String(reflecting: t).components(separatedBy: "<")[0]
-        return node.allNodes.filter { $0.typename.components(separatedBy: "<")[0] == basename }
-    }
-
     func valueNodes<T>(_ t: T.Type = T.self) -> [ValueNodeWrapper<T>] {
         node.allNodes.filter { $0.object is T }.map(ValueNodeWrapper.init)
     }
@@ -39,21 +41,24 @@ extension ReflectionNodeWrapper {
     var texts: [ValueNodeWrapper<Text>] { valueNodes() }
 
     var bindings: [BindingNodeWrapper] {
-        genericNodes(Binding<Any>.self).map(BindingNodeWrapper.init)
+        node.genericTypeNodes()
+    }
+
+    var states: [StateNodeWrapper] {
+        node.genericTypeNodes()
     }
 
     var toggles: [ToggleNodeWrapper] {
-        genericNodes(Toggle<AnyView>.self).map(ToggleNodeWrapper.init)
+        node.genericTypeNodes()
     }
 
     var buttons: [ButtonNodeWrapper] {
-        genericNodes(Button<AnyView>.self).map(ButtonNodeWrapper.init)
+        node.genericTypeNodes()
     }
 
     var refreshableModifiers: [RefreshableNodeWrapper] {
         func isRefreshableModifier(_ ref: ReflectionNode) -> Bool {
-            let basename = ref.typename.components(separatedBy: "<")[0]
-            return basename.hasPrefix("SwiftUI.") && basename.hasSuffix(".RefreshableModifier")
+            ref.typeInfo.basetype.hasPrefix("SwiftUI.") && ref.typeInfo.basetype.hasSuffix(".RefreshableModifier")
         }
         return node.allNodes.filter(isRefreshableModifier).map(RefreshableNodeWrapper.init)
     }

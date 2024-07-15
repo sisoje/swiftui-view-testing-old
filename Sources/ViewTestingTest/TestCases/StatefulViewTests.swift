@@ -1,8 +1,8 @@
 @testable import ViewTestingProd
-import SwiftUI
 import XCTest
+import SwiftUI
 
-class StatefulViewTests: XCTestCase {
+final class StatefulViewTests: XCTestCase {
     @MainActor override func setUp() async throws {
         guard ViewHosting.hostView != nil else {
             throw XCTSkip("stateful view need hosting")
@@ -11,12 +11,12 @@ class StatefulViewTests: XCTestCase {
 }
 
 @MainActor extension StatefulViewTests {
-    func testState() async throws {
+    func testToggle() async throws {
         struct DummyView: View {
-            @State var counter = 0
+            @State var isOn = false
             var body: some View {
                 let _ = postBodyEvaluationNotification()
-                Button("Count: \(counter)") { counter += 1 }
+                Toggle("Test", isOn: $isOn)
             }
         }
         
@@ -24,11 +24,32 @@ class StatefulViewTests: XCTestCase {
             DummyView()
         }
         
-        let dummyView = try await DummyView.getTestView()
-        let button = dummyView.bodyReflection.buttons[0]
-        XCTAssertEqual(button.texts.map(\.string), ["Count: %lld"])
-        XCTAssertEqual(dummyView.counter, 0)
+        let viewSnapshot = try await DummyView.getTestView().viewSnapshot
+        let toggle = viewSnapshot.body.toggles[0]
+        XCTAssertEqual(toggle.texts.map(\.string), ["Test"])
+        XCTAssertEqual(viewSnapshot.view.value.isOn, false)
+        toggle.toggle()
+        XCTAssertEqual(viewSnapshot.view.value.isOn, true)
+    }
+    
+    func testButton() async throws {
+        struct DummyView: View {
+            @State var counter = 0
+            var body: some View {
+                let _ = postBodyEvaluationNotification()
+                Button("Add") { counter += 1 }
+            }
+        }
+        
+        ViewHosting.hostView {
+            DummyView()
+        }
+        
+        let viewSnapshot = try await DummyView.getTestView().viewSnapshot
+        let button = viewSnapshot.body.buttons[0]
+        XCTAssertEqual(button.texts.map(\.string), ["Add"])
+        XCTAssertEqual(viewSnapshot.view.value.counter, 0)
         button.tap()
-        XCTAssertEqual(dummyView.counter, 1)
+        XCTAssertEqual(viewSnapshot.view.value.counter, 1)
     }
 }

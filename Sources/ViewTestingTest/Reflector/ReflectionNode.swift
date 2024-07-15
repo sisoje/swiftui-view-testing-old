@@ -13,7 +13,7 @@ final class ReflectionNode {
         self.depth = depth
         self.object = object
         self.label = label
-        self.typename = String(reflecting: type(of: object))
+        self.typeInfo = TypeInfo(object: object)
         self.mirror = Mirror(reflecting: object)
         self.children = mirror.children.enumerated().map { index, node in
             ReflectionNode(object: node.value, label: node.label ?? "", depth: depth + 1, index: index)
@@ -28,7 +28,7 @@ final class ReflectionNode {
     let label: String
     let object: Any
     let mirror: Mirror
-    let typename: String
+    let typeInfo: TypeInfo
 }
 
 // MARK: - Predicates
@@ -38,5 +38,14 @@ final class ReflectionNode {
 extension ReflectionNode {
     var allNodes: [ReflectionNode] {
         children.reduce([self]) { $0 + $1.allNodes }
+    }
+    
+    func genericTypeNodes<T>() -> [DynamicNodeWrapper<T>] {
+        let typeInfo = DynamicNodeWrapper<T>.baseTypeinfo
+        return allNodes.filter { $0.typeInfo.basetype == typeInfo.basetype }.map(DynamicNodeWrapper<T>.init)
+    }
+    
+    func typeNodes<T>(_ t: T.Type = T.self) -> [ValueNodeWrapper<T>] {
+        allNodes.filter { $0.object is T }.map(ValueNodeWrapper.init)
     }
 }

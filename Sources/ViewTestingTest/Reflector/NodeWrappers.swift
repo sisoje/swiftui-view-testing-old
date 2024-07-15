@@ -8,19 +8,74 @@
 import Foundation
 import SwiftUI
 
+struct TypeInfo: Equatable {
+    let typename: String
+    let basetype: String
+    let subtype: String
+    
+    private init(typename: String) {
+        self.typename = typename
+        let spl = typename.components(separatedBy: "<")
+        basetype = spl[0]
+        subtype = spl.dropFirst().joined(separator: "<").components(separatedBy: ">").dropLast().joined(separator: ">")
+    }
+    
+    init(object: Any) {
+        self.init(typename: String(reflecting: type(of: object)))
+    }
+    
+    init<T>(_ type: T.Type = T.self) {
+        self.init(typename: String(reflecting: type))
+    }
+}
+
 protocol ReflectionNodeWrapper {
     var node: ReflectionNode { get }
 }
 
-struct BindingNodeWrapper: ReflectionNodeWrapper {
+struct DynamicNodeWrapper<BASE>: ReflectionNodeWrapper {
     let node: ReflectionNode
-
-    func castAs<T>(_ t: T.Type = T.self) -> Binding<T>? {
-        node.object as? Binding<T>
+    
+    static var baseTypeinfo: TypeInfo {
+        TypeInfo(BASE.self)
     }
+    
+    func castAs<T>(_ t: T.Type = T.self) -> T? {
+        node.object as? T
+    }
+    
+    func memoryCast<T>(_ t: T.Type = T.self) -> T {
+        CastingUtils.memoryCast(node.object, T.self)
+    }
+}
 
-    func memoryCast<T>(_ t: T.Type = T.self) -> Binding<T> {
-        CastingUtils.memoryCast(node.object, Binding<T>.self)
+typealias BindingNodeWrapper = DynamicNodeWrapper<Binding<Any>>
+typealias StateNodeWrapper = DynamicNodeWrapper<State<Any>>
+typealias ToggleNodeWrapper = DynamicNodeWrapper<Toggle<AnyView>>
+typealias ButtonNodeWrapper = DynamicNodeWrapper<Button<AnyView>>
+
+extension ButtonNodeWrapper {
+    func tap() {
+        actions[0].value()
+    }
+}
+
+extension ToggleNodeWrapper {
+    var isOn: Binding<Bool> {
+        let binding = bindings[0]
+        if let boolBinding = binding.castAs(Binding<Bool>.self) {
+            return boolBinding
+        }
+        let dummyBinding = binding.memoryCast(Binding<CastingUtils.DummyEnum>.self)
+        return Binding {
+            dummyBinding.wrappedValue == .case0
+        } set: {
+            dummyBinding.wrappedValue = $0 ? .case0 : .case1
+        }
+    }
+    
+    func toggle() {
+        isOn.wrappedValue.toggle()
     }
 }
 
@@ -29,43 +84,6 @@ struct RefreshableNodeWrapper: ReflectionNodeWrapper {
 
     @MainActor func refresh() async {
         await asyncActions[0].value()
-    }
-}
-
-struct ButtonNodeWrapper: ReflectionNodeWrapper {
-    let node: ReflectionNode
-
-    func tap() {
-        actions[0].value()
-    }
-}
-
-struct ToggleNodeWrapper: ReflectionNodeWrapper {
-    let node: ReflectionNode
-
-    private var boolBinding: Binding<Bool> {
-        let binding = bindings.first!
-        if let boolBinding = binding.castAs(Bool.self) {
-            return boolBinding
-        }
-        enum DummyEnum {
-            case case0
-            case case1
-        }
-        let dummyBinding = binding.memoryCast(DummyEnum.self)
-        return Binding {
-            dummyBinding.wrappedValue == .case0
-        } set: {
-            dummyBinding.wrappedValue = $0 ? .case0 : .case1
-        }
-    }
-
-    func toggle() {
-        boolBinding.wrappedValue.toggle()
-    }
-
-    var isOn: Bool {
-        boolBinding.wrappedValue
     }
 }
 

@@ -18,9 +18,9 @@ function prepareTestProject() {
 
 cd HostApp
 prepareTestProject
-test 'platform=visionOS Simulator,name=Any visionOS Simulator Device'
-test 'platform=iOS Simulator,name=Any iOS Simulator Device'
-test 'platform=watchOS Simulator,name=Any watchOS Simulator Device'
-test 'platform=tvOS Simulator,name=Any tvOS Simulator Device'
-test 'platform=macOS,varint=Mac Catalyst,name=Any Mac'
 test 'platform=macOS,name=Any Mac'
+test 'platform=macOS,varint=Mac Catalyst,name=Any Mac'
+test 'platform=iOS Simulator,name=Any iOS Simulator Device'
+test 'platform=tvOS Simulator,name=Any tvOS Simulator Device'
+test 'platform=watchOS Simulator,name=Any watchOS Simulator Device'
+test 'platform=visionOS Simulator,name=Any visionOS Simulator Device'
